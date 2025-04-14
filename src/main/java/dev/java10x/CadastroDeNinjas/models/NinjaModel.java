@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "ninja")
+@Data //criar os Getters e Setters
 @NoArgsConstructor //construtor vazio
 @AllArgsConstructor //construtor com todos atributos
-@Data //criar os Getters e Setters
 public class NinjaModel {
 
     @Id
