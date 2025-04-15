@@ -2,6 +2,8 @@ package dev.java10x.CadastroDeNinjas.controller;
 
 import dev.java10x.CadastroDeNinjas.DTOs.MissaoDTO;
 import dev.java10x.CadastroDeNinjas.service.MissaoService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,27 +17,42 @@ public class MissaoController {
     }
 
     @GetMapping("/obter-missoes")
-    public List<MissaoDTO> ObterMissoes(){
-        return this.missaoService.obterMissoes();
+    public ResponseEntity<?> ObterMissoes(){
+        List<MissaoDTO> missoes =  this.missaoService.obterMissoes();
+        return ResponseEntity.ok(missoes);
     }
 
     @GetMapping("/obter-missao/{id}")
-    public MissaoDTO ObterMissao(@PathVariable Long id) {
-        return this.missaoService.obterMissao(id);
+    public ResponseEntity<?> ObterMissao(@PathVariable Long id) {
+        MissaoDTO missao = this.missaoService.obterMissao(id);
+        return ResponseEntity.ok(missao);
     }
 
     @PostMapping("/criar")
-    public MissaoDTO CriarMissao(@RequestBody MissaoDTO missaoDTO){
-        return this.missaoService.criarMissao(missaoDTO);
+    public ResponseEntity<?> CriarMissao(@RequestBody MissaoDTO missaoDTO){
+        MissaoDTO novaMissao = this.missaoService.criarMissao(missaoDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Missão criada com sucesso: " + novaMissao.getNome() + " (ID): " + novaMissao.getId());
     }
 
     @PutMapping("/alterar/{id}")
-    public MissaoDTO AlterarMissao(@PathVariable Long id, @RequestBody MissaoDTO missaoDTO){
-        return this.missaoService.atualizarMissao(id, missaoDTO);
+    public ResponseEntity<?> AlterarMissao(@PathVariable Long id, @RequestBody MissaoDTO missaoDTO){
+        MissaoDTO missao = this.missaoService.atualizarMissao(id, missaoDTO);
+        if (missao != null) {
+            return ResponseEntity.ok(missao);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Missão com o id: " + id + " nao existe nos nossos registros!");
+        }
     }
 
     @DeleteMapping("/deletar/{id}")
-    public void DeletarMissao(@PathVariable Long id){
-        this.missaoService.deletarMissao(id);
+    public ResponseEntity<?> DeletarMissao(@PathVariable Long id){
+        if(this.missaoService.obterMissao(id) != null){
+            this.missaoService.deletarMissao(id);
+            return ResponseEntity.ok("Missão com o ID: " + id + "excluído com sucesso!");
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Missão não encontrada!");
     }
 }
