@@ -1,6 +1,6 @@
 package dev.java10x.CadastroDeNinjas.controller;
 
-import dev.java10x.CadastroDeNinjas.models.NinjaModel;
+import dev.java10x.CadastroDeNinjas.DTOs.NinjaDTO;
 import dev.java10x.CadastroDeNinjas.service.NinjaService;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,29 +10,29 @@ import java.util.List;
 @RequestMapping("ninja")
 public class NinjaController {
 
-    private NinjaService ninjaService;
+    private final NinjaService ninjaService;
 
     NinjaController(NinjaService ninjaService){
         this.ninjaService = ninjaService;
     }
 
     @GetMapping("/obter-ninjas")
-    public List<NinjaModel> ObterNinjas(){
+    public List<NinjaDTO> ObterNinjas(){
         return this.ninjaService.obterNinjas();
     }
 
     @GetMapping("/obter-ninja/{id}")
-    public NinjaModel ObterNinja(@PathVariable Long id){
+    public NinjaDTO ObterNinja(@PathVariable Long id){
         return this.ninjaService.obterNinja(id);
     }
 
     @PostMapping("/criar")
-    public NinjaModel CriarNinja(@RequestBody NinjaModel ninja){
+    public NinjaDTO CriarNinja(@RequestBody NinjaDTO ninja){
         return this.ninjaService.criarNinja(ninja);
     }
 
     @PutMapping("/alterar/{id}")
-    public NinjaModel AlterarNinja(@PathVariable Long id, @RequestBody NinjaModel ninja){
+    public NinjaDTO AlterarNinja(@PathVariable Long id, @RequestBody NinjaDTO ninja){
         return this.ninjaService.alterarNinja(id, ninja);
     }
 

@@ -1,37 +1,50 @@
 package dev.java10x.CadastroDeNinjas.service;
 
+import dev.java10x.CadastroDeNinjas.DTOs.NinjaDTO;
 import dev.java10x.CadastroDeNinjas.interfaces.NinjaRepository;
+import dev.java10x.CadastroDeNinjas.mappers.NinjaMapper;
 import dev.java10x.CadastroDeNinjas.models.NinjaModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class NinjaService {
-    private NinjaRepository ninjaRepository;
+    private final NinjaRepository ninjaRepository;
+    private final NinjaMapper ninjaMapper;
 
-    NinjaService(NinjaRepository ninjaRepository){
+    NinjaService(NinjaRepository ninjaRepository, NinjaMapper ninjaMapper){
         this.ninjaRepository = ninjaRepository;
+        this.ninjaMapper = ninjaMapper;
     }
 
-    public List<NinjaModel> obterNinjas(){
-        return this.ninjaRepository.findAll();
+    public List<NinjaDTO> obterNinjas(){
+        List<NinjaModel> ninjas = this.ninjaRepository.findAll();
+        return ninjas.stream()
+                .map(this.ninjaMapper::mapToDTO)
+                .collect(Collectors.toList());
     }
 
-    public NinjaModel obterNinja(Long id){
+    public NinjaDTO obterNinja(Long id){
         Optional<NinjaModel> ninjaObtido = this.ninjaRepository.findById(id);
-        return ninjaObtido.orElse(null);
+        return ninjaObtido.map(this.ninjaMapper::mapToDTO).orElse(null);
     }
 
-    public NinjaModel criarNinja(NinjaModel ninja){
-        return this.ninjaRepository.save(ninja);
+    public NinjaDTO criarNinja(NinjaDTO ninjaDTO){
+        NinjaModel ninja = ninjaMapper.mapToEntity(ninjaDTO);
+        ninja = this.ninjaRepository.save(ninja);
+        return this.ninjaMapper.mapToDTO(ninja);
     }
 
-    public NinjaModel alterarNinja(Long id, NinjaModel ninja){
-        if(this.ninjaRepository.existsById(id)){
-            ninja.setId(id);
-            this.ninjaRepository.save(ninja);
+    public NinjaDTO alterarNinja(Long id, NinjaDTO ninjaDTO){
+        Optional<NinjaModel> ninjaExistente = this.ninjaRepository.findById(id);
+        if(ninjaExistente.isPresent()){
+            NinjaModel ninjaAtualizado = this.ninjaMapper.mapToEntity(ninjaDTO);
+            ninjaAtualizado.setId(id);
+            NinjaModel ninjaSalvo = this.ninjaRepository.save(ninjaAtualizado);
+            return this.ninjaMapper.mapToDTO(ninjaSalvo);
         }
         return null;
     }
